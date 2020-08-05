@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5af8a15a-960f-447b-b77d-3588e9959b5c">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="privateFlow" doc:id="8892380c-1593-4933-b59e-6974c1f2dd2a" >
+		<validation:is-number numberType="INTEGER" doc:name="Is number" doc:id="9c1e4099-113a-4ffc-a293-0a6acc3ed485" value="#[attributes.queryParams[0]]" message='"Not cool dude"' />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d196b127-3ca4-4d9f-aa09-2c49377da873" >
+				<set-payload value='"Error propagate from Private"' doc:name="Set Payload" doc:id="4d66563c-5d4b-4ea4-8b81-23975f687f5f" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="main" doc:id="41a0e990-3bb2-4fff-be09-a771586d5c2d" >
+		<http:listener doc:name="Get Listener" doc:id="73834b5f-2245-46df-92be-3f33ccbb4737" config-ref="HTTP_Listener_config" path="/getData" allowedMethods="GET"/>
+		<set-payload value='"Success Begin flow"' doc:name="Set Payload" doc:id="6a53662e-28f0-47d4-9175-5009d640ed4d" />
+		<set-variable value="#[attributes.queryParams[0]]" doc:name="Set Variable" doc:id="a6fa48db-7164-49f9-a3ca-08ef88cada99" variableName="Query"/>
+		<flow-ref doc:name="Flow Reference" doc:id="755c221f-8b61-4c82-a133-a1c5aaaa6e46" name="privateFlow"/>
+		<set-payload value='#["Success end of flow " ++ attributes.queryParams[0] as String default "" ]' doc:name="Set Payload" doc:id="9a070960-7ffd-4841-bcb9-5aed97a6bfe9" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="5e1ac1ab-59bf-427e-ac28-ae8ceebc7f31" >
+				<set-payload value="main - On error continue" doc:name="Set Payload" doc:id="d8cfee3a-53ca-498c-b0ca-9345f3e7eb4a" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>

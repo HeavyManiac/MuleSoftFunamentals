@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5af8a15a-960f-447b-b77d-3588e9959b5c">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="main" doc:id="41a0e990-3bb2-4fff-be09-a771586d5c2d" >
+		<http:listener doc:name="Get Listener" doc:id="73834b5f-2245-46df-92be-3f33ccbb4737" config-ref="HTTP_Listener_config" path="/getData" allowedMethods="GET"/>
+		<set-payload value='"Success Begin flow"' doc:name="Set Payload" doc:id="6a53662e-28f0-47d4-9175-5009d640ed4d" />
+		<ee:transform doc:name="Transform Message" doc:id="92aa33fb-6df2-45f0-8bbe-385b49637004" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+"RESPONSE" ++ payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="1a71d770-d5f6-443f-9750-132606033209" type="HTTP:NOT_FOUND">
+				<set-payload value='"On error continue: HTTP:NOT_FOUND"' doc:name="Set Payload" doc:id="0856c16b-4f66-430a-9765-e92a19f4b14e" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>
